@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "313602893050",
+    "project_id": "housemateexpenses-e7520",
+    "storage_bucket": "housemateexpenses-e7520.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:313602893050:android:36a8d6f6e298ed9e751543",
+        "android_client_info": {
+          "package_name": "com.example.housemateexpenses"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlg_jLYmsp5VPxWlx9iynrNsrmTISfhT4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
