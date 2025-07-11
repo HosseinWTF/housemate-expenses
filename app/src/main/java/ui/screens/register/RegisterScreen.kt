@@ -23,7 +23,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun RegisterScreen(
     onNavigateToLogin: () -> Unit,
-    onRegisterClick: (String, String) -> Unit
+    onRegisterClick: (String, String) -> Unit,
+    isLoggedIn: Boolean,
+    onRegisterSuccess: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
