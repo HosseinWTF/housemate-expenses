@@ -11,8 +11,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.example.housemateexpenses.ui.theme.HouseMateExpensesTheme
 import com.google.firebase.FirebaseApp
+import com.yourpackage.ui.AppNavGraph
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,6 +23,11 @@ class MainActivity : ComponentActivity() {
         FirebaseApp.initializeApp(this)
         enableEdgeToEdge()
         setContent {
+            setContent {
+                val navController = rememberNavController()
+                AppNavGraph(navController = navController)
+            }
+
             HouseMateExpensesTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
@@ -44,6 +52,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     HouseMateExpensesTheme {
-        Greeting("Android")
+
     }
 }

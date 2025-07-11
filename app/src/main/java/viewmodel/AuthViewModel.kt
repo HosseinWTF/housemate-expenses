@@ -11,27 +11,27 @@ class AuthViewModel(
     private val repo: FirebaseAuthRepository = FirebaseAuthRepository()
 ): ViewModel() {
 
-    private val _isLoggedin = MutableStateFlow(false)
-    val isLoggedin: StateFlow<Boolean> = _isLoggedin
+    private val _isLoggedIn = MutableStateFlow(false)
+    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
             val result = repo.login(email, password)
-            _isLoggedin.value = result.isSuccess
+            _isLoggedIn.value = result.isSuccess
         }
     }
     fun register(email: String, password: String) {
         viewModelScope.launch {
             val result = repo.register(email, password)
-            _isLoggedin.value = result.isSuccess
+            _isLoggedIn.value = result.isSuccess
         }
     }
     fun logOut() {
         repo.logOut()
-        _isLoggedin.value = false
+        _isLoggedIn.value = false
     }
     init {
-        _isLoggedin.value = repo.getCurrentUserId() != null
+        _isLoggedIn.value = repo.getCurrentUserId() != null
     }
 
 }
