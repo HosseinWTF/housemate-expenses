@@ -33,5 +33,9 @@ class AuthViewModel(
     init {
         _isLoggedIn.value = repo.getCurrentUserId() != null
     }
+    fun getCurrentUserId(): String? {
+        return repo.getCurrentUserId()
+    }
+
 
 }
