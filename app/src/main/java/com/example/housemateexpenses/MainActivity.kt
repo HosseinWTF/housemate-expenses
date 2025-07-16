@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.housemateexpenses.ui.theme.HouseMateExpensesTheme
 import com.google.firebase.FirebaseApp
 import com.yourpackage.ui.AppNavGraph
+import com.yourpackage.ui.screens.expense.ExpenseListScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -52,6 +53,5 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     HouseMateExpensesTheme {
-
     }
 }

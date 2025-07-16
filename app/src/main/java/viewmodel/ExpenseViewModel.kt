@@ -1,4 +1,4 @@
-package com.yourpackage.viewmodel
+package viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -44,3 +44,6 @@ class ExpenseViewModel(
         _addExpenseResult.value = null
     }
 }
+
+
+

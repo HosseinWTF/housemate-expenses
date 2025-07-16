@@ -3,15 +3,19 @@ package com.yourpackage.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.yourpackage.ui.screens.expense.AddExpenseScreen
+import com.yourpackage.ui.screens.expense.ExpenseListScreen
 import com.yourpackage.ui.screens.room.RoomListScreen
-
 import ui.screens.login.LoginScreen
 import ui.screens.register.RegisterScreen
 import viewmodel.AuthViewModel
+import viewmodel.ExpenseViewModel
 import viewmodel.RoomViewModel
 
 @Composable
@@ -35,7 +39,6 @@ fun AppNavGraph(navController: NavHostController) {
                         popUpTo("login") { inclusive = true }
                     }
                 }
-
             )
         }
 
@@ -56,6 +59,7 @@ fun AppNavGraph(navController: NavHostController) {
                 }
             )
         }
+
         composable("home") {
             val roomViewModel: RoomViewModel = viewModel()
             val authViewModel: AuthViewModel = viewModel()
@@ -78,11 +82,47 @@ fun AppNavGraph(navController: NavHostController) {
                 }
             }
         }
+
         composable("room/{roomId}") { backStackEntry ->
             val roomId = backStackEntry.arguments?.getString("roomId") ?: return@composable
-            // TODO: Navigate to the room's expense screen
+            val expenseViewModel: ExpenseViewModel = viewModel(
+                factory = provideExpenseViewModelFactory(roomId)
+            )
+            ExpenseListScreen(
+                viewModel = expenseViewModel,
+                onAddExpenseClick = {
+                    navController.navigate("room/$roomId/add")
+                }
+            )
         }
 
+        composable("room/{roomId}/add") { backStackEntry ->
+            val roomId = backStackEntry.arguments?.getString("roomId") ?: return@composable
+            val expenseViewModel: ExpenseViewModel = viewModel(
+                factory = provideExpenseViewModelFactory(roomId)
+            )
 
+            val authViewModel: AuthViewModel = viewModel()
+            val currentUserId = authViewModel.getCurrentUserId() ?: ""
+
+            AddExpenseScreen(
+                viewModel = expenseViewModel,
+                currentUserId = currentUserId,
+                onExpenseAdded = {
+                    navController.popBackStack()
+                },
+                onCancel = {
+                    navController.popBackStack()
+                }
+            )
+        }
     }
 }
+
+// 🔧 Factory function to avoid repeating ViewModelProvider.Factory code
+fun provideExpenseViewModelFactory(roomId: String): ViewModelProvider.Factory =
+    object : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return ExpenseViewModel(roomId) as T
+        }
+    }
