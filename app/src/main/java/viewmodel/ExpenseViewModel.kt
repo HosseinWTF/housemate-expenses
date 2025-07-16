@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yourpackage.data.repository.ExpenseRepository
 import data.model.Expense
+import data.model.UserBalance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,10 +24,15 @@ class ExpenseViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private val _userBalances = MutableStateFlow<List<UserBalance>>(emptyList())
+    val userBalances: StateFlow<List<UserBalance>> = _userBalances.asStateFlow()
+
+
     fun loadExpenses() {
         viewModelScope.launch {
-            repo.getExpenses(roomId).collect { result ->
-                _expenses.value = result
+            repo.getExpenses(roomId).collect { expensesList ->
+                _expenses.value = expensesList
+                _userBalances.value = calculateBalances(expensesList)
             }
         }
     }
@@ -43,6 +49,30 @@ class ExpenseViewModel(
     fun clearAddExpenseResult() {
         _addExpenseResult.value = null
     }
+
+    private fun calculateBalances(expenses: List<Expense>): List<UserBalance> {
+        val balances = mutableMapOf<String, Double>()
+
+        for (expense in expenses) {
+            val total = expense.amount
+            val splitCount = expense.sharedWith.size
+            if (splitCount == 0) continue
+
+            val splitAmount = total / splitCount
+
+            for (userId in expense.sharedWith) {
+                balances[userId] = (balances[userId] ?: 0.0) - splitAmount
+            }
+
+            val payer = expense.paidBy
+            balances[payer] = (balances[payer] ?: 0.0) + total
+        }
+
+        return balances.map { (userId, balance) ->
+            UserBalance(userId, String.format("%.2f", balance).toDouble())
+        }.sortedByDescending { it.balance }
+    }
+
 }
 
 
