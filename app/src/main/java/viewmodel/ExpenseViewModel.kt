@@ -2,13 +2,15 @@ package viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.FirebaseFirestore
 import com.yourpackage.data.repository.ExpenseRepository
 import data.model.Expense
-import data.model.UserBalance
+import data.model.OwesRecord
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class ExpenseViewModel(
     private val roomId: String,
@@ -24,19 +26,20 @@ class ExpenseViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val _userBalances = MutableStateFlow<List<UserBalance>>(emptyList())
-    val userBalances: StateFlow<List<UserBalance>> = _userBalances.asStateFlow()
+    private val _userMap = MutableStateFlow<Map<String, String>>(emptyMap())
+    val userMap: StateFlow<Map<String, String>> = _userMap.asStateFlow()
 
-
+    // Load expenses and immediately calculate owed records
     fun loadExpenses() {
         viewModelScope.launch {
             repo.getExpenses(roomId).collect { expensesList ->
                 _expenses.value = expensesList
-                _userBalances.value = calculateBalances(expensesList)
+                // No need to precalculate balances anymore
             }
         }
     }
 
+    // Adds a new expense and triggers result state
     fun addExpense(expense: Expense) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -46,34 +49,54 @@ class ExpenseViewModel(
         }
     }
 
+    // Optional: clear result after showing feedback
     fun clearAddExpenseResult() {
         _addExpenseResult.value = null
     }
 
-    private fun calculateBalances(expenses: List<Expense>): List<UserBalance> {
-        val balances = mutableMapOf<String, Double>()
+    // Loads display names of users for this room
+    fun loadUserNames(memberIds: List<String>) {
+        viewModelScope.launch {
+            val snapshot = FirebaseFirestore.getInstance()
+                .collection("users")
+                .whereIn("uid", memberIds)
+                .get()
+                .await()
 
-        for (expense in expenses) {
+            val map = snapshot.documents.associate { doc ->
+                val uid = doc.id
+                val name = doc.getString("name") ?: ""
+                uid to name
+            }
+
+            _userMap.value = map
+        }
+    }
+
+    // Main logic to calculate "who owes who" with merged results
+    fun calculateOwes(): List<OwesRecord> {
+        val records = mutableListOf<OwesRecord>()
+
+        for (expense in expenses.value) {
             val total = expense.amount
             val splitCount = expense.sharedWith.size
             if (splitCount == 0) continue
 
             val splitAmount = total / splitCount
+            val payer = expense.paidBy
 
             for (userId in expense.sharedWith) {
-                balances[userId] = (balances[userId] ?: 0.0) - splitAmount
+                if (userId == payer) continue
+                records.add(OwesRecord(fromUid = userId, toUid = payer, amount = splitAmount))
             }
-
-            val payer = expense.paidBy
-            balances[payer] = (balances[payer] ?: 0.0) + total
         }
 
-        return balances.map { (userId, balance) ->
-            UserBalance(userId, String.format("%.2f", balance).toDouble())
-        }.sortedByDescending { it.balance }
+        return records
+            .groupBy { it.fromUid to it.toUid }
+            .map { (key, group) ->
+                val (from, to) = key
+                val totalOwed = group.sumOf { it.amount }
+                OwesRecord(from, to, String.format("₺%.2f", totalOwed).toDouble())
+            }
     }
-
 }
-
-
-

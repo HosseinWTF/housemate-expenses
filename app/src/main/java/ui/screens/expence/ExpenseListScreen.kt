@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.yourpackage.ui.screens.room.RoomListScreen
 import data.model.Expense
 import viewmodel.ExpenseViewModel
 
@@ -19,8 +20,28 @@ fun ExpenseListScreen(
     val expenses by viewModel.expenses.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
+    val userMap by viewModel.userMap.collectAsState()
+    val owesRecords = viewModel.calculateOwes()
+
+    if (owesRecords.isNotEmpty() && userMap.isNotEmpty()) {
+        Text("Who owes who:", style = MaterialTheme.typography.titleMedium)
+
+        owesRecords.forEach { record ->
+            val fromName = userMap[record.fromUid] ?: record.fromUid
+            val toName = userMap[record.toUid] ?: record.toUid
+            val line = "$fromName owes $toName \$${"₺%.2f".format(record.amount)}"
+
+            Text(text = line, style = MaterialTheme.typography.bodyMedium)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+
+
+
     LaunchedEffect(Unit) {
         viewModel.loadExpenses()
+        //viewModel.loadUserNames()
     }
 
     Scaffold(
