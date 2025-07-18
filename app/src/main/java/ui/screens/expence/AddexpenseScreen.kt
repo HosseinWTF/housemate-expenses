@@ -3,6 +3,7 @@ package com.yourpackage.ui.screens.expense
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import data.model.Expense
@@ -101,3 +102,42 @@ fun AddExpenseScreen(
         }
     }
 }
+
+@Composable
+fun UserSelector(
+    members: List<String>,
+    userMap: Map<String, String>,
+    selected: List<String>,
+    onChange: (List<String>) -> Unit
+) {
+    var selectedUsers by remember { mutableStateOf(selected.toSet()) }
+
+    Column {
+        Text("Split with:", style = MaterialTheme.typography.titleMedium)
+
+        Button(onClick = {
+            selectedUsers = members.toSet()
+            onChange(selectedUsers.toList())
+        }) {
+            Text("Share with All")
+        }
+
+        members.forEach { uid ->
+            val name = userMap[uid] ?: uid
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(
+                    checked = uid in selectedUsers,
+                    onCheckedChange = { checked ->
+                        selectedUsers = if (checked)
+                            selectedUsers + uid
+                        else
+                            selectedUsers - uid
+                        onChange(selectedUsers.toList())
+                    }
+                )
+                Text(name)
+            }
+        }
+    }
+}
+

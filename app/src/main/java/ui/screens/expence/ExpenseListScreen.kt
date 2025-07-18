@@ -70,7 +70,7 @@ fun ExpenseListScreen(
             } else {
                 LazyColumn {
                     items(expenses) { expense ->
-                        ExpenseItem(expense)
+                        ExpenseItem(expense = expense, userMap = userMap)
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
@@ -80,16 +80,25 @@ fun ExpenseListScreen(
 }
 
 @Composable
-fun ExpenseItem(expense: Expense) {
+fun ExpenseItem(expense: Expense, userMap: Map<String, String>) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(text = expense.title, style = MaterialTheme.typography.titleMedium)
-            Text(text = "Amount: ₺${String.format("%.2f", expense.amount)}")
-            Text(text = "Paid by: ${expense.paidBy}")
-            Text(text = "Shared with: ${expense.sharedWith.size} people")
+
+            Text(text = "Amount: ₺${"%.2f".format(expense.amount)}")
+
+            val paidByName = userMap[expense.paidBy] ?: expense.paidBy
+            Text(text = "Paid by: $paidByName")
+
+            val sharedNames = expense.sharedWith.map { userMap[it] ?: it }
+            Text(text = "Shared with: ${sharedNames.joinToString(", ")}")
+
             if (expense.notes.isNotBlank()) {
                 Text(text = "Notes: ${expense.notes}")
             }
         }
     }
 }
+
+
+

@@ -29,7 +29,6 @@ class ExpenseViewModel(
     private val _userMap = MutableStateFlow<Map<String, String>>(emptyMap())
     val userMap: StateFlow<Map<String, String>> = _userMap.asStateFlow()
 
-    // Load expenses and immediately calculate owed records
     fun loadExpenses() {
         viewModelScope.launch {
             repo.getExpenses(roomId).collect { expensesList ->
@@ -39,7 +38,6 @@ class ExpenseViewModel(
         }
     }
 
-    // Adds a new expense and triggers result state
     fun addExpense(expense: Expense) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -49,12 +47,10 @@ class ExpenseViewModel(
         }
     }
 
-    // Optional: clear result after showing feedback
     fun clearAddExpenseResult() {
         _addExpenseResult.value = null
     }
 
-    // Loads display names of users for this room
     fun loadUserNames(memberIds: List<String>) {
         viewModelScope.launch {
             val snapshot = FirebaseFirestore.getInstance()
@@ -73,7 +69,6 @@ class ExpenseViewModel(
         }
     }
 
-    // Main logic to calculate "who owes who" with merged results
     fun calculateOwes(): List<OwesRecord> {
         val records = mutableListOf<OwesRecord>()
 
