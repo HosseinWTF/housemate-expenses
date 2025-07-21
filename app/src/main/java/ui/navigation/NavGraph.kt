@@ -27,12 +27,8 @@ fun AppNavGraph(navController: NavHostController) {
         composable("login") {
             val authViewModel: AuthViewModel = viewModel()
             LoginScreen(
-                onNavigateToRegister = {
-                    navController.navigate("register")
-                },
-                onLoginClick = { email, password ->
-                    authViewModel.login(email, password)
-                },
+                onNavigateToRegister = { navController.navigate("register") },
+                onLoginClick = { email, password -> authViewModel.login(email, password) },
                 isLoggedIn = authViewModel.isLoggedIn.collectAsState().value,
                 onLoginSuccess = {
                     navController.navigate("home") {
@@ -45,12 +41,8 @@ fun AppNavGraph(navController: NavHostController) {
         composable("register") {
             val authViewModel: AuthViewModel = viewModel()
             RegisterScreen(
-                onNavigateToLogin = {
-                    navController.navigate("login")
-                },
-                onRegisterClick = { email, password ->
-                    authViewModel.register(email, password)
-                },
+                onNavigateToLogin = { navController.navigate("login") },
+                onRegisterClick = { email, password -> authViewModel.register(email, password) },
                 isLoggedIn = authViewModel.isLoggedIn.collectAsState().value,
                 onRegisterSuccess = {
                     navController.navigate("home") {
@@ -63,7 +55,6 @@ fun AppNavGraph(navController: NavHostController) {
         composable("home") {
             val roomViewModel: RoomViewModel = viewModel()
             val authViewModel: AuthViewModel = viewModel()
-
             val currentUserId = authViewModel.getCurrentUserId()
 
             if (currentUserId != null) {
@@ -72,6 +63,9 @@ fun AppNavGraph(navController: NavHostController) {
                     currentUserId = currentUserId,
                     onRoomClick = { roomId ->
                         navController.navigate("room/$roomId")
+                    },
+                    onManageMembersClick = { roomId ->
+                        navController.navigate("room/$roomId/members")
                     }
                 )
             } else {
@@ -101,25 +95,43 @@ fun AppNavGraph(navController: NavHostController) {
             val expenseViewModel: ExpenseViewModel = viewModel(
                 factory = provideExpenseViewModelFactory(roomId)
             )
-
             val authViewModel: AuthViewModel = viewModel()
             val currentUserId = authViewModel.getCurrentUserId() ?: ""
 
             AddExpenseScreen(
                 viewModel = expenseViewModel,
                 currentUserId = currentUserId,
-                onExpenseAdded = {
-                    navController.popBackStack()
-                },
-                onCancel = {
-                    navController.popBackStack()
-                }
+                onExpenseAdded = { navController.popBackStack() },
+                onCancel = { navController.popBackStack() },
+                roomId = TODO()
             )
         }
+
+        composable("room/{roomId}/members") { backStackEntry ->
+            val roomId = backStackEntry.arguments?.getString("roomId") ?: return@composable
+            val roomViewModel: RoomViewModel = viewModel()
+
+            RoomMembersScreen(
+                roomId = roomId,
+                viewModel = roomViewModel,
+                onBack = { navController.popBackStack() },
+                currentMembers = TODO()
+            )
+        }
+
     }
 }
 
-// 🔧 Factory function to avoid repeating ViewModelProvider.Factory code
+@Composable
+fun RoomMembersScreen(
+    roomId: String,
+    currentMembers: List<String>,
+    onBack: () -> Boolean,
+    viewModel: RoomViewModel
+) {
+    TODO("Not yet implemented")
+}
+
 fun provideExpenseViewModelFactory(roomId: String): ViewModelProvider.Factory =
     object : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

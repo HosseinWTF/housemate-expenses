@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import viewmodel.RoomViewModel
@@ -15,9 +14,10 @@ import viewmodel.RoomViewModel
 fun RoomListScreen(
     viewModel: RoomViewModel,
     currentUserId: String,
-    onRoomClick: (roomId: String) -> Unit
-) {
-
+    onRoomClick: (roomId: String) -> Unit,
+    onManageMembersClick: (roomId: String) -> Unit
+)
+ {
     val rooms by viewModel.rooms.collectAsState()
     val createResult by viewModel.createResult.collectAsState()
 
@@ -64,13 +64,28 @@ fun RoomListScreen(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                        .clickable { onRoomClick(room.id) },
+                        .padding(vertical = 4.dp),
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = room.name, style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            text = room.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.clickable { onRoomClick(room.id) }
+                        )
                         Text(text = "ID: ${room.id}", style = MaterialTheme.typography.bodySmall)
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        OutlinedButton(
+                            onClick = { onManageMembersClick(room.id) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Manage Members")
+                        }
+                    }
+                    Button(onClick = { onManageMembersClick(room.id) }) {
+                        Text("Manage Members")
                     }
                 }
             }

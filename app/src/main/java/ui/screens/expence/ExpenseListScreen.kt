@@ -61,37 +61,39 @@ fun ExpenseListScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            if (isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+            when {
+                isLoading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
                 }
-            } else if (expenses.isEmpty()) {
-                Text("No expenses yet.")
-            } else {
-                LazyColumn {
-                    items(expenses) { expense ->
-                        ExpenseItem(expense = expense, userMap = userMap)
-                        Spacer(modifier = Modifier.height(8.dp))
+                expenses.isEmpty() -> {
+                    Text("No expenses yet.", style = MaterialTheme.typography.bodyMedium)
+                }
+                else -> {
+                    LazyColumn {
+                        items(expenses) { expense ->
+                            ExpenseItem(expense, userMap)
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
                     }
                 }
             }
         }
     }
 }
-
 @Composable
 fun ExpenseItem(expense: Expense, userMap: Map<String, String>) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(text = expense.title, style = MaterialTheme.typography.titleMedium)
-
             Text(text = "Amount: ₺${"%.2f".format(expense.amount)}")
 
             val paidByName = userMap[expense.paidBy] ?: expense.paidBy
             Text(text = "Paid by: $paidByName")
 
             val sharedNames = expense.sharedWith.map { userMap[it] ?: it }
-            Text(text = "Shared with: ${sharedNames.joinToString(", ")}")
+            Text(text = "Shared with: ${sharedNames.joinToString()}")
 
             if (expense.notes.isNotBlank()) {
                 Text(text = "Notes: ${expense.notes}")
@@ -99,6 +101,10 @@ fun ExpenseItem(expense: Expense, userMap: Map<String, String>) {
         }
     }
 }
+
+
+
+
 
 
 
