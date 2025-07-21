@@ -6,7 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -24,19 +26,17 @@ class MainActivity : ComponentActivity() {
         FirebaseApp.initializeApp(this)
         enableEdgeToEdge()
         setContent {
-            setContent {
-                val navController = rememberNavController()
-                AppNavGraph(navController = navController)
-            }
+                HouseMateExpensesTheme {
+                    val navController = rememberNavController()
 
-            HouseMateExpensesTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    Surface(color = MaterialTheme.colorScheme.background) {
+                        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                            AppNavGraph(navController = navController,
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                        }
+                    }
                 }
-            }
         }
     }
 }
