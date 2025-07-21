@@ -1,9 +1,9 @@
 package ui.screens.login
 
-import android.R.attr.text
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -24,7 +24,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
-    onLoginClick: (String, String) -> Unit
+    onLoginClick: (String, String) -> Unit,
+    isLoggedIn: Boolean,
+    onLoginSuccess: () -> Unit
 ) {
 
     var email by remember { mutableStateOf("") }
@@ -45,7 +47,7 @@ fun LoginScreen(
             value = email,
             onValueChange = { email = it },
             singleLine = true,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
         )
         OutlinedTextField(
             label = { Text("Password") },
@@ -53,7 +55,7 @@ fun LoginScreen(
             onValueChange = { password = it },
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
         )
         Button(onClick = { onLoginClick(email, password) }) {
             Text("Login")
@@ -61,5 +63,6 @@ fun LoginScreen(
         TextButton(onClick = onNavigateToRegister) {
             Text("Don't have an account? Register")
         }
+
     }
 }

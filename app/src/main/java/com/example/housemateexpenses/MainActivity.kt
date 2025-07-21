@@ -6,13 +6,19 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.example.housemateexpenses.ui.theme.HouseMateExpensesTheme
 import com.google.firebase.FirebaseApp
+import com.yourpackage.ui.AppNavGraph
+import com.yourpackage.ui.screens.expense.ExpenseListScreen
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,14 +26,17 @@ class MainActivity : ComponentActivity() {
         FirebaseApp.initializeApp(this)
         enableEdgeToEdge()
         setContent {
-            HouseMateExpensesTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                HouseMateExpensesTheme {
+                    val navController = rememberNavController()
+
+                    Surface(color = MaterialTheme.colorScheme.background) {
+                        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                            AppNavGraph(navController = navController,
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                        }
+                    }
                 }
-            }
         }
     }
 }
@@ -44,6 +53,5 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     HouseMateExpensesTheme {
-        Greeting("Android")
     }
 }
