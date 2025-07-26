@@ -80,4 +80,17 @@ class RoomViewModel(
             loadRoomMembers(roomId)
         }
     }
+    private val _joinResult = MutableStateFlow<Result<Unit>?>(null)
+    val joinResult: StateFlow<Result<Unit>?> = _joinResult
+
+    fun joinRoom(roomId: String, userId: String) {
+        viewModelScope.launch {
+            _joinResult.value = repo.joinRoomByCode(roomId, userId)
+        }
+    }
+
+    fun clearJoinResult() {
+        _joinResult.value = null
+    }
+
 }

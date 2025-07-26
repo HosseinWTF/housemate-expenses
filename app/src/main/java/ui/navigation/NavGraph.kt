@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import com.yourpackage.ui.screens.expense.AddExpenseScreen
 import com.yourpackage.ui.screens.expense.ExpenseListScreen
 import com.yourpackage.ui.screens.room.RoomListScreen
+import ui.screens.JoinRoomScreen
 import ui.screens.login.LoginScreen
 import ui.screens.register.RegisterScreen
 import viewmodel.AuthViewModel
@@ -117,6 +118,25 @@ fun AppNavGraph(navController: NavHostController, modifier: Modifier = Modifier)
                 viewModel = roomViewModel,
                 onBack = { navController.popBackStack() },
                 currentMembers = TODO()
+            )
+        }
+
+        composable("join_room") {
+            val roomViewModel: RoomViewModel = viewModel()
+            val authViewModel: AuthViewModel = viewModel()
+            val currentUserId = authViewModel.getCurrentUserId() ?: return@composable
+
+            JoinRoomScreen(
+                viewModel = roomViewModel,
+                currentUserId = currentUserId,
+                onJoined = {
+                    navController.navigate("home") {
+                        popUpTo("join_room") { inclusive = true }
+                    }
+                },
+                onBack = {
+                    navController.popBackStack()
+                }
             )
         }
 

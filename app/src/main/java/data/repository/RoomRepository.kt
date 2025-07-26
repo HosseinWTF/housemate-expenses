@@ -53,6 +53,24 @@ class RoomRepository(
             listener.remove()
         }
     }
+    suspend fun joinRoomByCode(roomId: String, userId: String): Result<Unit> {
+        return try {
+            val roomRef = firestore.collection("rooms").document(roomId)
+            firestore.runTransaction { transaction ->
+                val snapshot = transaction.get(roomRef)
+                if (!snapshot.exists()) throw Exception("Room not found")
+
+                val currentMembers = snapshot.get("members") as? List<String> ?: emptyList()
+                if (userId !in currentMembers) {
+                    transaction.update(roomRef, "members", currentMembers + userId)
+                }
+            }.await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 
 
 
